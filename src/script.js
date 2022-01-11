@@ -6,6 +6,7 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 const gltfLoader = new GLTFLoader();
 const raycaster = new THREE.Raycaster();
 const boats = [];
+let loadComplete = false;
 const cursor = {
     x: 0,
     y: 0,
@@ -22,7 +23,7 @@ window.addEventListener("mousemove", (event) => {
 gltfLoader.load("/3dModels/5CellBoat.glb", (gltf) => {
     scene.add(gltf.scene.children[0]);
     boats[0] = scene.children[5];
-    tick();
+    loadComplete = true;
     console.log(boats[0]);
 });
 
@@ -85,24 +86,26 @@ export function tick() {
     mesh.position.z = cursor.y * -18; */
 
     //RayCaster
-    raycaster.setFromCamera(cursor, camera);
-    const intersect = raycaster.intersectObject(boats[0]);
+    if (loadComplete) {
+        raycaster.setFromCamera(cursor, camera);
+        const intersect = raycaster.intersectObject(boats[0]);
 
-    if (intersect.length) {
-        if (!currentIntersect) {
-            console.log("mouse enter");
-            inside = true;
-            console.log(inside);
-        }
-        currentIntersect = true;
-    } else {
-        if (currentIntersect) {
-            console.log("mouse leave");
-            inside = false;
-            console.log(inside);
-        }
+        if (intersect.length) {
+            if (!currentIntersect) {
+                console.log("mouse enter");
+                inside = true;
+                console.log(inside);
+            }
+            currentIntersect = true;
+        } else {
+            if (currentIntersect) {
+                console.log("mouse leave");
+                inside = false;
+                console.log(inside);
+            }
 
-        currentIntersect = false;
+            currentIntersect = false;
+        }
     }
     console.log("hi");
 
@@ -110,3 +113,4 @@ export function tick() {
     renderer.render(scene, camera);
     requestAnimationFrame(tick);
 }
+tick();
